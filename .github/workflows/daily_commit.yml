@@ -2,28 +2,30 @@ name: Daily Commit
 
 on:
   schedule:
-    # This cron expression schedules the workflow to run daily at 12:00 UTC
-    - cron: '0 12 * * *'  # You can change the time here if you want
+    - cron: '30 2 * * *'  # Runs daily at 02:30 UTC
+  workflow_dispatch:  # Allows manual triggering
+
+permissions:
+  contents: write  # Ensure GitHub Actions can push changes
 
 jobs:
-  daily_commit:
+  commit:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Commit changes (email: 23f2005126@ds.study.iitm.ac.in)
+      - name: Configure Git (23f2005126@ds.study.iitm.ac.in)
         run: |
-          # Create or modify a file (e.g., adding a timestamp to a file)
-          echo "Commit made on $(date)" >> commit_log.txt
+          git config --global user.name "GitHub Action"
+          git config --global user.email "23f2005126@ds.study.iitm.ac.in"
 
-          # Add and commit the change
-          git config user.name "GitHub Actions"
-          git config user.email "23f2005126@ds.study.iitm.ac.in"
-          git add commit_log.txt
-          git commit -m "Daily commit made by GitHub Actions"
-
-      - name: Push changes
+      - name: Make a Change
         run: |
+          echo "Last run: $(date)" > last_run.txt  # Always modify the file
+
+      - name: Commit and Push Changes
+        run: |
+          git add last_run.txt
+          git commit -m "Automated daily commit at $(date)" || echo "No changes to commit"
           git push
